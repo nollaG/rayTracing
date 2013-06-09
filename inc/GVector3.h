@@ -9,8 +9,8 @@ class GVector3 {
     float y;
     float z;
   public:
-    friend std::ostream& operator<<(std::ostream,const GVector3&);
-    friend std::istream& operator>>(std::istream,GVector3&);
+    friend std::ostream& operator<<(std::ostream&,const GVector3&);
+    friend std::istream& operator>>(std::istream&,GVector3&);
     GVector3();
     GVector3(float,float,float);
     float length();

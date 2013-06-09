@@ -84,7 +84,7 @@ GVector3 GVector3::operator/=(const float f) {
 }
 
 std::ostream& operator<<(std::ostream& os,const GVector3& g) {
-  os << g.x << g.y << g.z;
+  os << g.x << " " << g.y << " " << " " <<g.z;
   return os;
 }
 std::istream& operator>>(std::istream& is,GVector3& g) {
