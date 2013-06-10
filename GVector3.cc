@@ -69,16 +69,8 @@ GVector3 GVector3::operator*=(const float f) {
   return *this;
 }
 
-GVector3 GVector3::operator*(const GVector3& rhs) const {
-  GVector3 g1(x*rhs.x,y*rhs.y,z*rhs.z);
-  return g1;
-}
-
-GVector3 GVector3::operator*=(const GVector3& rhs) {
-  x*=rhs.x;
-  y*=rhs.y;
-  z*=rhs.z;
-  return *this;
+float GVector3::operator*(const GVector3& rhs) const {
+  return x*rhs.x+y*rhs.y+z*rhs.z;
 }
 
 

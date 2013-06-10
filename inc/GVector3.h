@@ -25,8 +25,7 @@ class GVector3 {
     GVector3 operator-=(const GVector3&);
     GVector3 operator*(const float) const;
     GVector3 operator*=(const float);
-    GVector3 operator*(const GVector3&) const;
-    GVector3 operator*=(const GVector3&);
+    float operator*(const GVector3&) const;
     GVector3 operator/(const float) const;
     GVector3 operator/=(const float);
 };
