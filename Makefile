@@ -1,4 +1,4 @@
-OBJS=GVector3.o main.o Ray.o
+OBJS=GVector3.o main.o Ray.o GObject.o
 HEADERS=inc/GVector3.h
 CXX=clang++
 CFLAGS=-ggdb -O2
@@ -12,6 +12,8 @@ GVector3.o:inc/GVector3.h GVector3.cc
 	$(CXX) $(CFLAGS) -o GVector3.o -c GVector3.cc
 Ray.o:inc/Ray.h Ray.cc
 	$(CXX) $(CFLAGS) -o Ray.o -c Ray.cc
+GObject.o:inc/GObject.h GObject.cc
+	$(CXX) $(CFLAGS) -o GObject.o -c GObject.cc
 .PHONY:clean
 clean:
 	rm rayTracing $(OBJS)
