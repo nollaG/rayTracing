@@ -12,10 +12,13 @@ class GVector3 {
     friend std::ostream& operator<<(std::ostream&,const GVector3&);
     friend std::istream& operator>>(std::istream&,GVector3&);
     GVector3();
+    GVector3(const GVector3&);
     GVector3(float,float,float);
-    float length();
+    float length() const;
     //false if the length==0
     bool normalize();
+    GVector3 operator=(const GVector3&);
+    GVector3 operator=(float);
     GVector3 operator+(const GVector3&) const;
     GVector3 operator+=(const GVector3&);
     GVector3 operator-(const GVector3&) const;

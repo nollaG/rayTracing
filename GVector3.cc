@@ -4,11 +4,15 @@
 
 GVector3::GVector3():x(0.0f),y(0.0f),z(0.0f){}
 
+GVector3::GVector3(const GVector3& rhs):x(rhs.x),y(rhs.y),z(rhs.z){}
+
 GVector3::GVector3(float xx,float yy,float zz):x(xx),y(yy),z(zz){}
 
-float GVector3::length() {
+float GVector3::length() const {
   return sqrt(x*x+y*y+z*z);
 }
+
+
 
 bool GVector3::normalize() {
   float len=this->length();
@@ -18,6 +22,19 @@ bool GVector3::normalize() {
   y/=len;
   z/=len;
   return true;
+}
+GVector3 GVector3::operator=(const GVector3& rhs) {
+  x=rhs.x;
+  y=rhs.y;
+  z=rhs.z;
+  return *this;
+}
+
+GVector3 GVector3::operator=(float f) {
+  x=f;
+  y=f;
+  z=f;
+  return *this;
 }
 
 GVector3 GVector3::operator+(const GVector3& rhs) const {
