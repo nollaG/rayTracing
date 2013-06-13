@@ -1,4 +1,5 @@
-OBJS=GVector3.o main.o Ray.o GObject.o GSphere.o
+OBJS=GVector3.o main.o Ray.o GObject.o GSphere.o GFlat.o LightSource.o\
+	 DirectionalLight.o PointLight.o
 LDFLAGS=-lm -lGLU -lglut
 HEADERS=inc/GVector3.h
 CXX=clang++
@@ -15,8 +16,16 @@ Ray.o:inc/Ray.h Ray.cc
 	$(CXX) $(CFLAGS) -o Ray.o -c Ray.cc
 GObject.o:inc/GObject.h GObject.cc
 	$(CXX) $(CFLAGS) -o GObject.o -c GObject.cc
+LightSource.o:inc/LightSource.h LightSource.cc
+	$(CXX) $(CFLAGS) -o LightSource.o -c LightSource.cc
+DirectionalLight.o:inc/DirectionalLight.h DirectionalLight.cc
+	$(CXX) $(CFLAGS) -o DirectionalLight.o -c DirectionalLight.cc
+PointLight.o:inc/PointLight.h PointLight.cc
+	$(CXX) $(CFLAGS) -o PointLight.o -c PointLight.cc
 GSphere.o:inc/GSphere.h GSphere.cc
 	$(CXX) $(CFLAGS) -o GSphere.o -c GSphere.cc
+GFlat.o:inc/GFlat.h GFlat.cc
+	$(CXX) $(CFLAGS) -o GFlat.o -c GFlat.cc
 .PHONY:clean
 clean:
 	rm rayTracing $(OBJS)

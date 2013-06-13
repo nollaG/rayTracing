@@ -7,15 +7,15 @@
 class GSphere:public GObject {
   private:
     GVector3 m_Center;
-    float m_Radius;
+    double m_Radius;
   public:
     GSphere();
-    GSphere(const GVector3&,float);
+    GSphere(const GVector3&,double);
     void setCenter(const GVector3&);
-    void setRadius(float);
+    void setRadius(double);
     GVector3 getCenter() const;
-    float getRadius() const;
-    INTERSECTION_TYPE isIntersected(const Ray&,float&) const;
+    double getRadius() const;
+    INTERSECTION_TYPE isIntersected(const Ray&,double&) const;
     GVector3 getNormal(const GVector3&) const;
 };
 

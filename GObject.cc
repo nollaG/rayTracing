@@ -2,7 +2,7 @@
 
 GObject::GObject():m_Shininess(0.0f),m_Reflectivity(0.0f){}
 
-GObject::GObject(const GVector3& ka,const GVector3& kd,const GVector3& ks,float shi,float ref):
+GObject::GObject(const GVector3& ka,const GVector3& kd,const GVector3& ks,double shi,double ref):
   m_Ka(ka),m_Kd(kd),m_Ks(ks),m_Shininess(shi),m_Reflectivity(ref){}
 
 void GObject::setKa(const GVector3& ka) {
@@ -16,11 +16,11 @@ void GObject::setKd(const GVector3& kd) {
 void GObject::setKs(const GVector3& ks) {
   m_Ks=ks;
 }
- void GObject::setShininess(float shi) {
+ void GObject::setShininess(double shi) {
    m_Shininess=shi;
  }
 
-void GObject::setReflectivity(float ref) {
+void GObject::setReflectivity(double ref) {
   m_Reflectivity=ref;
 }
 
@@ -35,10 +35,10 @@ GVector3 GObject::getKs() const {
   return m_Ks;
 }
 
-float GObject::getShininess() const {
+double GObject::getShininess() const {
   return m_Shininess;
 }
 
-float GObject::getReflectivity() const {
+double GObject::getReflectivity() const {
   return m_Reflectivity;
 }

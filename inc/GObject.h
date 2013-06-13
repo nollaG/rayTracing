@@ -11,23 +11,23 @@ class GObject {
     GVector3 m_Ka;//ambient material
     GVector3 m_Kd;//diffuse material
     GVector3 m_Ks;//specular material
-    float m_Shininess;
-    float m_Reflectivity;
+    double m_Shininess;
+    double m_Reflectivity;
   public:
     GObject();
-    GObject(const GVector3&,const GVector3&,const GVector3&,float,float);
+    GObject(const GVector3&,const GVector3&,const GVector3&,double,double);
     void setKa(const GVector3&);
     void setKd(const GVector3&);
     void setKs(const GVector3&);
-    void setShininess(float);
-    void setReflectivity(float);
+    void setShininess(double);
+    void setReflectivity(double);
     GVector3 getKa() const;
     GVector3 getKd() const;
     GVector3 getKs() const;
-    float getShininess() const;
-    float getReflectivity() const;
+    double getShininess() const;
+    double getReflectivity() const;
     virtual GVector3 getNormal(const GVector3&) const=0;
-    virtual INTERSECTION_TYPE isIntersected(const Ray&,float&) const=0;
+    virtual INTERSECTION_TYPE isIntersected(const Ray&,double&) const=0;
 
 };
 

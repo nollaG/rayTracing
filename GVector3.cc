@@ -6,16 +6,16 @@ GVector3::GVector3():x(0.0f),y(0.0f),z(0.0f){}
 
 GVector3::GVector3(const GVector3& rhs):x(rhs.x),y(rhs.y),z(rhs.z){}
 
-GVector3::GVector3(float xx,float yy,float zz):x(xx),y(yy),z(zz){}
+GVector3::GVector3(double xx,double yy,double zz):x(xx),y(yy),z(zz){}
 
-float GVector3::length() const {
+double GVector3::length() const {
   return sqrt(x*x+y*y+z*z);
 }
 
 
 
 bool GVector3::normalize() {
-  float len=this->length();
+  double len=this->length();
   if (len==0)
     return false;
   x/=len;
@@ -30,7 +30,7 @@ GVector3 GVector3::operator=(const GVector3& rhs) {
   return *this;
 }
 
-GVector3 GVector3::operator=(float f) {
+GVector3 GVector3::operator=(double f) {
   x=f;
   y=f;
   z=f;
@@ -58,23 +58,23 @@ GVector3 GVector3::operator-=(const GVector3& rhs) {
   return *this;
 }
 
-GVector3 GVector3::operator*(const float f) const {
+GVector3 GVector3::operator*(const double f) const {
   GVector3 g1(x*f,y*f,z*f);
   return g1;
 }
-GVector3 GVector3::operator*=(const float f) {
+GVector3 GVector3::operator*=(const double f) {
   x*=f;
   y*=f;
   z*=f;
   return *this;
 }
 
-float GVector3::operator*(const GVector3& rhs) const {
+double GVector3::operator*(const GVector3& rhs) const {
   return x*rhs.x+y*rhs.y+z*rhs.z;
 }
 
 
-GVector3 GVector3::operator/(const float f) const {
+GVector3 GVector3::operator/(const double f) const {
   GVector3 g1;
   if (f==0.0f)
     return g1;
@@ -83,7 +83,7 @@ GVector3 GVector3::operator/(const float f) const {
   g1.z=z/y;
   return g1;
 }
-GVector3 GVector3::operator/=(const float f) {
+GVector3 GVector3::operator/=(const double f) {
   if (f==0.0f)
     return *this;
   x/=f;

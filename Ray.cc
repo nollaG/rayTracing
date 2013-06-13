@@ -22,7 +22,7 @@ GVector3 Ray::getDirection() const {
   return direction;
 }
 
-GVector3 Ray::getPoint(float f) const {
+GVector3 Ray::getPoint(double f) const {
   if (direction.length()==0) {
     return direction;
   }

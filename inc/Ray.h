@@ -13,7 +13,7 @@ class Ray {
     void setDirection(const GVector3&);
     GVector3 getOrigin() const;
     GVector3 getDirection() const;
-    GVector3 getPoint(float) const;
+    GVector3 getPoint(double) const;
 };
 
 #endif /* end of include guard: RAY_H */
