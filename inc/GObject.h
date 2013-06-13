@@ -26,7 +26,7 @@ class GObject {
     GVector3 getKs() const;
     float getShininess() const;
     float getReflectivity() const;
-    virtual GVector3 getNormal() const=0;
+    virtual GVector3 getNormal(const GVector3&) const=0;
     virtual INTERSECTION_TYPE isIntersected(const Ray&,float&) const=0;
 
 };

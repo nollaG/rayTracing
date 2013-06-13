@@ -1,7 +1,9 @@
 #include "inc/Ray.h"
 #include "inc/GVector3.h"
 
-Ray::Ray(const GVector3& ori,const GVector3& dir):origin(ori),direction(dir){}
+Ray::Ray(const GVector3& ori,const GVector3& dir):origin(ori),direction(dir){
+  direction.normalize();
+}
 
 void Ray::setOrigin(const GVector3& ori) {
   origin=ori;
