@@ -4,6 +4,7 @@
 #include <GL/glut.h>
 #include <cmath>
 #include <vector>
+#include <stdio.h>
 #include "inc/GVector3.h"
 #include "inc/GFlat.h"
 #include "inc/GSphere.h"
@@ -11,6 +12,7 @@
 #include "inc/LightSource.h"
 #include "inc/DirectionalLight.h"
 #include "inc/PointLight.h"
+#include "inc/GComplexModel.h"
 #define IMAGE_HEIGHT 600
 #define IMAGE_WIDTH 800
 #define SCENE_HEIGHT 60
@@ -18,10 +20,12 @@
 #define MAX_DISTANCE 1000000
 #define TRACE_DEPTH 3
 #define EPILSON 0.0001
+#define BUNNY_VERTICES 453
+#define BUNNY_FACES 948
 
 std::vector<GObject*> object_list;
 std::vector<LightSource*> light_list;
-GVector3 CameraPosition(0.0f,0.0f,40.0f);
+GVector3 CameraPosition(0.0f,0.0f,60.0f);
 GVector3 globalLight(1.0f,1.0f,1.0f);
 
 double HALF_PIXEL_WIDTH = double(SCENE_WIDTH) / double(IMAGE_WIDTH*2.0f);
@@ -43,21 +47,59 @@ void init() {
   
   glDepthFunc(GL_LEQUAL);
   GObject *test;
-  test=new GSphere(GVector3(-5.0f,-2.0f,5.0f),5.0f);
+#ifdef BUNNY
+  GComplexModel* gcm=new GComplexModel();
+  FILE* datain=fopen("data/bunny.data","r");
+  fprintf(stdout,"Reading data from data/bunny.data\n");
+  if (!datain) {
+    perror("Open Data File Error");
+    exit(1);
+  }
+  double xx,yy,zz,t1,t2;
+  for (int i=0;i<BUNNY_VERTICES;++i) {
+    fscanf(datain,"%lf %lf %lf %lf %lf",&xx,&yy,&zz,&t1,&t2);
+    xx*=50;
+    yy*=50;
+    zz*=50;
+    gcm->vertices.push_back(GVector3(xx,yy,zz)+GVector3(-6.2f,-5.0f,5.0f));
+  }
+  int t,a,b,c;
+  for (int i=0;i<BUNNY_FACES;++i) {
+    fscanf(datain,"%d %d %d %d",&t,&a,&b,&c);
+    gcm->indices.push_back(a);
+    gcm->indices.push_back(b);
+    gcm->indices.push_back(c);
+  }
+  fclose(datain);
+  fprintf(stdout,"Reading Data Done.\n");
+  if (gcm->calSurround())
+    fprintf(stdout,"surround Calculated.\n");
+  gcm->calNormalVectors();
+  fprintf(stdout,"Normal Vectors Calculated.\n");
+  gcm->setKa(GVector3(0.5f,0.0f,0.5f));
+  gcm->setKd(GVector3(0.3f,0.3f,0.3f));
+  gcm->setKs(GVector3(1.0f,1.0f,1.0f));
+  gcm->setShininess(40.0f);
+  gcm->setReflectivity(0.0f);
+  gcm->setTransparency(0.0f);
+  object_list.push_back(gcm);
+#else
+  test=new GSphere(GVector3(3.0f,5.0f,5.0f),4.0f);
+  test->setKa(GVector3(0.5f,0.0f,0.5f));
+  test->setKd(GVector3(0.3f,0.3f,0.3f));
+  test->setKs(GVector3(1.0f,1.0f,1.0f));
+  test->setShininess(30.0f);
+  test->setReflectivity(0.4f);
+  test->setTransparency(0.0f);
+  object_list.push_back(test);
+#endif
+  test=new GSphere(GVector3(-2.0f,0.4f,15.0f),5.0f);
   test->setKa(GVector3(0.5f,0.0f,0.0f));
   test->setKd(GVector3(0.3f,0.3f,0.3f));
   test->setKs(GVector3(1.0f,1.0f,1.0f));
   test->setShininess(30.0f);
   test->setReflectivity(0.0f);
   test->setTransparency(0.7f);
-  object_list.push_back(test);
-  test=new GSphere(GVector3(5.0f,5.0f,-5.0f),4.0f);
-  test->setShininess(70.0f);
-  test->setKa(GVector3(0.5f,0.5f,0.0f));
-  test->setKd(GVector3(0.3f,0.3f,0.3f));
-  test->setKs(GVector3(1.0f,1.0f,1.0f));
-  test->setReflectivity(0.5f);
-  test->setTransparency(0.0f);
   object_list.push_back(test);
   test=new GSphere(GVector3(-20.0f,5.0f,0.0f),4.0f);
   test->setShininess(50.0f);
@@ -68,11 +110,11 @@ void init() {
   test->setTransparency(0.0f);
   object_list.push_back(test);
   test=new GSphere(GVector3(15.0f,5.0f,2.0f),3.0f);
-  test->setShininess(50.0f);
-  test->setKa(GVector3(0.2f,0.0f,0.4f));
+  test->setShininess(70.0f);
+  test->setKa(GVector3(0.5f,0.5f,0.0f));
   test->setKd(GVector3(0.3f,0.3f,0.3f));
   test->setKs(GVector3(1.0f,1.0f,1.0f));
-  test->setReflectivity(0.6f);
+  test->setReflectivity(0.5f);
   test->setTransparency(0.0f);
   object_list.push_back(test);
   test=new GFlat(GVector3(0.0f,1.0f,0.0f),GVector3(0.0f,-10.0f,0.0f));
@@ -120,8 +162,6 @@ GVector3 Tracer(const Ray& ray,int left) {
   //now there is a intersection point
   GObject* obj=object_list.at(IntersectionObject);
   GVector3 point=ray.getPoint(distance);
-  GVector3 normal=obj->getNormal(point);
-  normal.normalize();
   GVector3 tmpColor;
   GVector3 objMaterial=obj->getKa();
   color=GVector3(globalLight.x*objMaterial.x,globalLight.y*objMaterial.y,globalLight.z*objMaterial.z);
@@ -155,6 +195,8 @@ GVector3 Tracer(const Ray& ray,int left) {
   }
   if (left==0)
     return color;
+  GVector3 normal=obj->getNormal(point);
+  normal.normalize();
   GVector3 rd=ray.getDirection();
   GVector3 transparentRayDirection=rd;
   Ray transparentRay(point+transparentRayDirection*EPILSON,transparentRayDirection);

@@ -2,24 +2,61 @@
 
 bool GComplexModel::calSurround() {
   GVector3 surroundCenter;
-  double diameter=-1.0f;
-  for (int i=0;i<vertices.size();++i)
-    for (int j=i+1;j<vertices.size();++j) {
-      GVector3 tmp=vertices.at(j)-vertices.at(i);
-      if (tmp.length()>diameter) {
-        diameter=tmp.length();
-        surroundCenter=(vertices.at(i)+vertices.at(j))*0.5;
-      }
-    }
-  if (diameter<0)
+  double diameter;
+  double maxx=-1000.0f,maxy=-1000.0f,maxz=-1000.0f,minx=1000.0f,miny=1000.0f,minz=1000.0f;
+  if (vertices.empty())
     return false;
+  for (int i=0;i<vertices.size();++i) {
+    if (vertices.at(i).x>maxx)
+      maxx=vertices.at(i).x;
+    if (vertices.at(i).y>maxy)
+      maxy=vertices.at(i).y;
+    if (vertices.at(i).z>maxz)
+      maxz=vertices.at(i).z;
+    if (vertices.at(i).x<minx)
+      minx=vertices.at(i).x;
+    if (vertices.at(i).y<miny)
+      miny=vertices.at(i).y;
+    if (vertices.at(i).z<minz)
+      minz=vertices.at(i).z;
+  }
+  GVector3 p1(minx,miny,minz);
+  GVector3 p2(maxx,maxy,maxz);
+  diameter=(p2-p1).length();
+  surroundCenter=(p2+p1)*0.5;
   surround.setCenter(surroundCenter);
-  surround.setRadius(diameter*0.5);
+  surround.setRadius(diameter);
   return true;
 }
 
 GVector3 GComplexModel::getNormal(const GVector3& p) const {
-  return tmpNormal;
+  double min=100000.0f;
+  int minv=-1;
+  double tmp;
+  for (int i=0;i<vertices.size();++i) {
+    tmp=(vertices.at(i)-p).length();
+    if (tmp<min) {
+      min=tmp;
+      minv=i;
+    }
+  }
+  if (minv==-1)
+    return GVector3(0.0f,0.0f,0.0f);
+  return normals.at(minv);
+}
+
+void GComplexModel::calNormalVectors() {
+  GVector3 tmp;
+  for (int i=0;i<vertices.size();++i)
+    normals.push_back(GVector3(0.0f,0.0f,0.0f));
+  for (int i=0;i<indices.size();i+=3) {
+    tmp=calNormal(vertices.at(indices.at(i)), vertices.at(indices.at(i+1)), vertices.at(indices.at(i+2)));
+    normals.at(indices.at(i))+=tmp;
+    normals.at(indices.at(i+1))+=tmp;
+    normals.at(indices.at(i+2))+=tmp;
+  }
+  for (int i=0;i<normals.size();++i)
+    normals.at(i).normalize();
 }
 
 GVector3 GComplexModel::calNormal(const GVector3& v0,const GVector3& v1,const GVector3& v2) const {
@@ -56,7 +93,6 @@ bool GComplexModel::intersectTriangle(const Ray& ray,const GVector3& v0,const GV
   double fInvDet = 1.0f / det;
   if (t*fInvDet < dist) {
     dist = t*fInvDet;
-    tmpNormal=calNormal(v0,v1,v2);
     return true;
   } else {
     return false;
@@ -64,6 +100,9 @@ bool GComplexModel::intersectTriangle(const Ray& ray,const GVector3& v0,const GV
 }
 
 INTERSECTION_TYPE GComplexModel::isIntersected(const Ray& ray,double &dist) {
+  double tmpdist=dist;
+  if (surround.isIntersected(ray,tmpdist)==MISS)
+    return MISS;
   bool result=false;
   for (int i=0;i<indices.size();i+=3) {
     if (intersectTriangle(ray,vertices.at(indices.at(i)),
