@@ -8,6 +8,7 @@ class Ray {
     GVector3 origin;
     GVector3 direction;
   public:
+    Ray();
     Ray(const GVector3&,const GVector3&);
     void setOrigin(const GVector3&);
     void setDirection(const GVector3&);
