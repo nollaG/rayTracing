@@ -2,6 +2,7 @@ OBJS=GVector3.o main.o Ray.o GObject.o GSphere.o GFlat.o LightSource.o\
 	 DirectionalLight.o PointLight.o
 LDFLAGS=-lm -lGLU -lglut
 HEADERS=inc/GVector3.h
+DEFINES=
 CXX=clang++
 CFLAGS=-ggdb -O2
 
@@ -9,23 +10,23 @@ all:rayTracing
 rayTracing:$(OBJS)
 	$(CXX) $(OBJS) $(LDFLAGS) -o rayTracing
 main.o:inc/GVector3.h main.cc
-	$(CXX) $(CFLAGS) -o main.o -c main.cc
+	$(CXX) $(CFLAGS) $(DEFINES) -o main.o -c main.cc
 GVector3.o:inc/GVector3.h GVector3.cc
-	$(CXX) $(CFLAGS) -o GVector3.o -c GVector3.cc
+	$(CXX) $(CFLAGS) $(DEFINES) -o GVector3.o -c GVector3.cc
 Ray.o:inc/Ray.h Ray.cc
-	$(CXX) $(CFLAGS) -o Ray.o -c Ray.cc
+	$(CXX) $(CFLAGS) $(DEFINES) -o Ray.o -c Ray.cc
 GObject.o:inc/GObject.h GObject.cc
-	$(CXX) $(CFLAGS) -o GObject.o -c GObject.cc
+	$(CXX) $(CFLAGS) $(DEFINES) -o GObject.o -c GObject.cc
 LightSource.o:inc/LightSource.h LightSource.cc
-	$(CXX) $(CFLAGS) -o LightSource.o -c LightSource.cc
+	$(CXX) $(CFLAGS) $(DEFINES) -o LightSource.o -c LightSource.cc
 DirectionalLight.o:inc/DirectionalLight.h DirectionalLight.cc
-	$(CXX) $(CFLAGS) -o DirectionalLight.o -c DirectionalLight.cc
+	$(CXX) $(CFLAGS) $(DEFINES) -o DirectionalLight.o -c DirectionalLight.cc
 PointLight.o:inc/PointLight.h PointLight.cc
-	$(CXX) $(CFLAGS) -o PointLight.o -c PointLight.cc
+	$(CXX) $(CFLAGS) $(DEFINES) -o PointLight.o -c PointLight.cc
 GSphere.o:inc/GSphere.h GSphere.cc
-	$(CXX) $(CFLAGS) -o GSphere.o -c GSphere.cc
+	$(CXX) $(CFLAGS) $(DEFINES) -o GSphere.o -c GSphere.cc
 GFlat.o:inc/GFlat.h GFlat.cc
-	$(CXX) $(CFLAGS) -o GFlat.o -c GFlat.cc
+	$(CXX) $(CFLAGS) $(DEFINES) -o GFlat.o -c GFlat.cc
 .PHONY:clean
 clean:
 	rm rayTracing $(OBJS)

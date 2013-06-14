@@ -181,6 +181,7 @@ void display() {
     for (int j=0;j<IMAGE_HEIGHT;++j) {
       double left_bottom_x=-SCENE_WIDTH/2.0 + PIXEL_WIDTH*i;
       double left_bottom_y=-SCENE_HEIGHT/2.0 + PIXEL_HEIGHT*j;
+#ifdef MULTIRAY
       double left_top_x=-SCENE_WIDTH/2.0 + PIXEL_WIDTH*i;
       double left_top_y=-SCENE_HEIGHT/2.0 + PIXEL_HEIGHT*(j+1);
       double right_bottom_x=-SCENE_WIDTH/2.0 + PIXEL_WIDTH*(i+1);
@@ -189,12 +190,14 @@ void display() {
       double right_top_y=-SCENE_HEIGHT/2.0 + PIXEL_HEIGHT*(j+1);
       double center_x=left_bottom_x+HALF_PIXEL_WIDTH;
       double center_y=left_bottom_y+HALF_PIXEL_HEIGHT;
+#endif //multiray
       GVector3 pixel,direction,resultColor;
       Ray ray;
       pixel=GVector3(left_bottom_x,left_bottom_y,0);
       direction=pixel-CameraPosition;
       ray=Ray(CameraPosition,direction);
       resultColor+=Tracer(ray,TRACE_DEPTH);
+#ifdef MULTIRAY
       pixel=GVector3(left_top_x,left_top_y,0);
       direction=pixel-CameraPosition;
       ray=Ray(CameraPosition,direction);
@@ -212,6 +215,7 @@ void display() {
       ray=Ray(CameraPosition,direction);
       resultColor+=Tracer(ray,TRACE_DEPTH);
       resultColor*=0.2;
+#endif //multiray
       glColor3f(resultColor.x,resultColor.y,resultColor.z);
       glVertex3f(i,j,0);
     }
