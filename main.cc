@@ -11,12 +11,12 @@
 #include "inc/LightSource.h"
 #include "inc/DirectionalLight.h"
 #include "inc/PointLight.h"
-#define IMAGE_HEIGHT 768
-#define IMAGE_WIDTH 1024
+#define IMAGE_HEIGHT 600
+#define IMAGE_WIDTH 800
 #define SCENE_HEIGHT 60
 #define SCENE_WIDTH 80
 #define MAX_DISTANCE 1000000
-#define TRACE_DEPTH 3
+#define TRACE_DEPTH 5
 #define EPILSON 0.0001
 
 std::vector<GObject*> object_list;
@@ -35,7 +35,7 @@ void init() {
   glShadeModel(GL_FLAT);
   glEnable(GL_DEPTH_TEST);
 
-  glPointSize(5);
+  glPointSize(1);
   glEnable(GL_POINT_SMOOTH);
   glHint(GL_POINT_SMOOTH,GL_NICEST);
   glEnable(GL_BLEND);
@@ -50,21 +50,21 @@ void init() {
   test->setShininess(30.0f);
   test->setReflectivity(0.0f);
   object_list.push_back(test);
-  test=new GSphere(GVector3(5.0f,5.0f,-5.0f),3.0f);
-  test->setShininess(80.0f);
-  test->setKa(GVector3(0.0f,0.0f,0.3f));
+  test=new GSphere(GVector3(5.0f,5.0f,-5.0f),4.0f);
+  test->setShininess(70.0f);
+  test->setKa(GVector3(0.5f,0.5f,0.0f));
   test->setKd(GVector3(0.3f,0.3f,0.3f));
   test->setKs(GVector3(1.0f,1.0f,1.0f));
   test->setReflectivity(0.5f);
   object_list.push_back(test);
-  //test=new gsphere(gvector3(-10.0f,10.0f,0.0f),4.0f);
-  //test->setshininess(50.0f);
-  //test->setka(gvector3(0.0f,0.3f,0.0f));
-  //test->setkd(gvector3(0.3f,0.3f,0.3f));
-  //test->setks(gvector3(1.0f,1.0f,1.0f));
-  //test->setreflectivity(0.3f);
-  //object_list.push_back(test);
-  test=new GSphere(GVector3(12.0f,5.0f,0.0f),3.0f);
+  test=new GSphere(GVector3(-20.0f,5.0f,0.0f),4.0f);
+  test->setShininess(50.0f);
+  test->setKa(GVector3(0.3f,0.3f,0.3f));
+  test->setKd(GVector3(0.3f,0.3f,0.3f));
+  test->setKs(GVector3(1.0f,1.0f,1.0f));
+  test->setReflectivity(0.5f);
+  object_list.push_back(test);
+  test=new GSphere(GVector3(15.0f,5.0f,2.0f),3.0f);
   test->setShininess(50.0f);
   test->setKa(GVector3(0.2f,0.0f,0.4f));
   test->setKd(GVector3(0.3f,0.3f,0.3f));
@@ -80,20 +80,20 @@ void init() {
   object_list.push_back(test);
   PointLight* pl=new PointLight();
   pl->setPosition(GVector3(5.0f,15.0f,20.0f));
-  pl->setKa(GVector3(1.0f,1.0f,1.0f));
-  pl->setKd(GVector3(0.0f,0.0f,1.0f));
-  pl->setKs(GVector3(1.0f,1.0f,1.0f));
+  pl->setKa(GVector3(0.8f,0.8f,0.8f));
+  pl->setKd(GVector3(0.0f,0.0f,0.5f));
+  pl->setKs(GVector3(0.5f,0.5f,0.5f));
   light_list.push_back(pl);
   //pl=new PointLight();
   //pl->setPosition(GVector3(-5.0f,50.0f,-20.0f));
-  //pl->setKa(GVector3(1.0f,1.0f,1.0f));
-  //pl->setKd(GVector3(1.0f,0.0f,0.0f));
+  //pl->setKa(GVector3(0.5f,0.5f,0.5f));
+  //pl->setKd(GVector3(0.5f,0.5f,0.5f));
   //pl->setKs(GVector3(1.0f,1.0f,1.0f));
   //light_list.push_back(pl);
   //DirectionalLight* dl=new DirectionalLight();
   //dl->setDirection(GVector3(-1.0f,-5.0f,-4.0f));
-  //dl->setKa(GVector3(0.3f,0.0f,0.0f));
-  //dl->setKd(GVector3(1.0f,1.0f,1.0f));
+  //dl->setKa(GVector3(1.0f,1.0f,1.0f));
+  //dl->setKd(GVector3(0.0f,0.0f,1.0f));
   //dl->setKs(GVector3(1.0f,1.0f,1.0f));
   //light_list.push_back(dl);
 }
@@ -145,14 +145,7 @@ GVector3 Tracer(const Ray& ray,int left) {
   GVector3 reflectColor=Tracer(reflectRay,left-1);
   //color.normalize();
   GVector3 material=obj->getKa();
-  if (reflectColor.length() > EPILSON) {
-    color=color*(1-obj->getReflectivity())+GVector3(material.x*reflectColor.x,material.y*reflectColor.y,material.z*reflectColor.z)*obj->getReflectivity();
-  }
-  //if (reflectColor.length()>EPILSON) {
-    //color=color*(1-obj->getReflectivity())+reflectColor*obj->getReflectivity();
-    ////color.normalize();
-  //}
-  //color.normalize();
+  color=color*(1-obj->getReflectivity())+GVector3(material.x*reflectColor.x,material.y*reflectColor.y,material.z*reflectColor.z)*obj->getReflectivity();
   return color;
 }
 
