@@ -13,6 +13,11 @@
 #include "inc/DirectionalLight.h"
 #include "inc/PointLight.h"
 #include "inc/GComplexModel.h"
+#ifdef MULTITHREAD
+#include <pthread.h>
+#define MULTI_THREAD_NUM 4
+#define MULTI_THREAD_TRUNK_SIZE 1000
+#endif
 #define IMAGE_HEIGHT 600
 #define IMAGE_WIDTH 800
 #define SCENE_HEIGHT 60
@@ -32,6 +37,14 @@ double HALF_PIXEL_WIDTH = double(SCENE_WIDTH) / double(IMAGE_WIDTH*2.0f);
 double HALF_PIXEL_HEIGHT = double(SCENE_HEIGHT) / double(IMAGE_HEIGHT*2.0f);
 double PIXEL_WIDTH = double(SCENE_WIDTH) / double(IMAGE_WIDTH);
 double PIXEL_HEIGHT = double(SCENE_HEIGHT) / double(IMAGE_HEIGHT);
+GVector3 Tracer(const Ray& ray,int left);
+void print_progress(int);
+int percent;
+#ifdef MULTITHREAD
+GVector3 pixelColor[IMAGE_WIDTH][IMAGE_HEIGHT];
+pthread_mutex_t multi_thread_mutex;
+int multithread_pixel;
+#endif
 
 
 void init() {
@@ -145,6 +158,84 @@ void init() {
   //light_list.push_back(dl);
 }
 
+GVector3 samplePixel(int i,int j) {
+  double left_bottom_x=-SCENE_WIDTH/2.0 + PIXEL_WIDTH*i;
+  double left_bottom_y=-SCENE_HEIGHT/2.0 + PIXEL_HEIGHT*j;
+#ifdef MULTIRAY
+  double left_top_x=-SCENE_WIDTH/2.0 + PIXEL_WIDTH*i;
+  double left_top_y=-SCENE_HEIGHT/2.0 + PIXEL_HEIGHT*(j+1);
+  double right_bottom_x=-SCENE_WIDTH/2.0 + PIXEL_WIDTH*(i+1);
+  double right_bottom_y=-SCENE_HEIGHT/2.0 + PIXEL_HEIGHT*j;
+  double right_top_x=-SCENE_WIDTH/2.0 + PIXEL_WIDTH*(i+1);
+  double right_top_y=-SCENE_HEIGHT/2.0 + PIXEL_HEIGHT*(j+1);
+  double center_x=left_bottom_x+HALF_PIXEL_WIDTH;
+  double center_y=left_bottom_y+HALF_PIXEL_HEIGHT;
+#endif //multiray
+  GVector3 pixel,direction,resultColor;
+  Ray ray;
+  pixel=GVector3(left_bottom_x,left_bottom_y,0);
+  direction=pixel-CameraPosition;
+  ray=Ray(CameraPosition,direction);
+  resultColor+=Tracer(ray,TRACE_DEPTH);
+#ifdef MULTIRAY
+  pixel=GVector3(left_top_x,left_top_y,0);
+  direction=pixel-CameraPosition;
+  ray=Ray(CameraPosition,direction);
+  resultColor+=Tracer(ray,TRACE_DEPTH);
+  pixel=GVector3(right_bottom_x,right_bottom_y,0);
+  direction=pixel-CameraPosition;
+  ray=Ray(CameraPosition,direction);
+  resultColor+=Tracer(ray,TRACE_DEPTH);
+  pixel=GVector3(right_top_x,right_top_y,0);
+  direction=pixel-CameraPosition;
+  ray=Ray(CameraPosition,direction);
+  resultColor+=Tracer(ray,TRACE_DEPTH);
+  pixel=GVector3(center_x,center_y,0);
+  direction=pixel-CameraPosition;
+  ray=Ray(CameraPosition,direction);
+  resultColor+=Tracer(ray,TRACE_DEPTH);
+  resultColor*=0.2;
+#endif //multiray
+  return resultColor;
+}
+
+
+#ifdef MULTITHREAD
+void* pthread_helper(void* arg) {
+  int tmp;
+  int currentInt;
+  bool flag;
+  while (true) {
+    flag=false;
+    pthread_mutex_lock(&multi_thread_mutex);
+    multithread_pixel+=MULTI_THREAD_TRUNK_SIZE;
+    tmp=multithread_pixel;
+    currentInt=(tmp+1)*20/(IMAGE_HEIGHT*IMAGE_WIDTH);
+    if (currentInt>percent) {
+      percent=currentInt;
+      flag=true;
+    }
+    pthread_mutex_unlock(&multi_thread_mutex);
+    if (tmp>=IMAGE_HEIGHT*IMAGE_WIDTH)
+      pthread_exit(0);
+    if (flag)
+      print_progress(percent);
+    for (int k=0;k<MULTI_THREAD_TRUNK_SIZE;++k) {
+      int i=(tmp+k) / IMAGE_HEIGHT;
+      int j=(tmp+k) % IMAGE_HEIGHT;
+      pixelColor[i][j]=samplePixel(i,j);
+    }
+  }
+}
+#endif
+
+void print_progress(int k) {
+  for (int i=0;i<k;++i)
+    std::cout << "=";
+  std::cout << "> " << k*5 << "%" << std::endl;
+}
+
+
 GVector3 Tracer(const Ray& ray,int left) {
   GVector3 color(0.0f,0.0f,0.0f);//background
   double distance = MAX_DISTANCE;
@@ -218,49 +309,40 @@ void display() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity(); 
   glBegin(GL_POINTS);
+  percent=0;
+#ifdef MULTITHREAD
+  multithread_pixel = 0;
+  pthread_t tid[MULTI_THREAD_NUM];
+  for (int i=0;i<MULTI_THREAD_NUM;++i) {
+    pthread_create(&tid[i],NULL,pthread_helper,NULL);
+  }
+  for (int i=0;i<MULTI_THREAD_NUM;++i) {
+    pthread_join(tid[i],NULL);
+  }
+  if (MULTI_THREAD_TRUNK_SIZE!=1)
+    print_progress(20);
   for (int i=0;i<IMAGE_WIDTH;++i) {
     for (int j=0;j<IMAGE_HEIGHT;++j) {
-      double left_bottom_x=-SCENE_WIDTH/2.0 + PIXEL_WIDTH*i;
-      double left_bottom_y=-SCENE_HEIGHT/2.0 + PIXEL_HEIGHT*j;
-#ifdef MULTIRAY
-      double left_top_x=-SCENE_WIDTH/2.0 + PIXEL_WIDTH*i;
-      double left_top_y=-SCENE_HEIGHT/2.0 + PIXEL_HEIGHT*(j+1);
-      double right_bottom_x=-SCENE_WIDTH/2.0 + PIXEL_WIDTH*(i+1);
-      double right_bottom_y=-SCENE_HEIGHT/2.0 + PIXEL_HEIGHT*j;
-      double right_top_x=-SCENE_WIDTH/2.0 + PIXEL_WIDTH*(i+1);
-      double right_top_y=-SCENE_HEIGHT/2.0 + PIXEL_HEIGHT*(j+1);
-      double center_x=left_bottom_x+HALF_PIXEL_WIDTH;
-      double center_y=left_bottom_y+HALF_PIXEL_HEIGHT;
-#endif //multiray
-      GVector3 pixel,direction,resultColor;
-      Ray ray;
-      pixel=GVector3(left_bottom_x,left_bottom_y,0);
-      direction=pixel-CameraPosition;
-      ray=Ray(CameraPosition,direction);
-      resultColor+=Tracer(ray,TRACE_DEPTH);
-#ifdef MULTIRAY
-      pixel=GVector3(left_top_x,left_top_y,0);
-      direction=pixel-CameraPosition;
-      ray=Ray(CameraPosition,direction);
-      resultColor+=Tracer(ray,TRACE_DEPTH);
-      pixel=GVector3(right_bottom_x,right_bottom_y,0);
-      direction=pixel-CameraPosition;
-      ray=Ray(CameraPosition,direction);
-      resultColor+=Tracer(ray,TRACE_DEPTH);
-      pixel=GVector3(right_top_x,right_top_y,0);
-      direction=pixel-CameraPosition;
-      ray=Ray(CameraPosition,direction);
-      resultColor+=Tracer(ray,TRACE_DEPTH);
-      pixel=GVector3(center_x,center_y,0);
-      direction=pixel-CameraPosition;
-      ray=Ray(CameraPosition,direction);
-      resultColor+=Tracer(ray,TRACE_DEPTH);
-      resultColor*=0.2;
-#endif //multiray
+      glColor3f(pixelColor[i][j].x,pixelColor[i][j].y,pixelColor[i][j].z);
+      glVertex3f(i,j,0);
+    }
+  }
+
+#else
+  int currentInt;
+  for (int i=0;i<IMAGE_WIDTH;++i) {
+    for (int j=0;j<IMAGE_HEIGHT;++j) {
+      currentInt=(i*IMAGE_HEIGHT+j+1)*20/(IMAGE_WIDTH*IMAGE_HEIGHT);
+      if (currentInt>percent) {
+        percent=currentInt;
+        print_progress(currentInt);
+      }
+      GVector3 resultColor=samplePixel(i,j);
       glColor3f(resultColor.x,resultColor.y,resultColor.z);
       glVertex3f(i,j,0);
     }
   }
+#endif //multithread
   glEnd();
   glutSwapBuffers();
 }

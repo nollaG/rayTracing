@@ -1,6 +1,6 @@
 OBJS=GVector3.o main.o Ray.o GObject.o GSphere.o GFlat.o LightSource.o\
 	 DirectionalLight.o PointLight.o GComplexModel.o
-LDFLAGS=-lm -lGLU -lglut
+LDFLAGS=-lm -lGLU -lglut -lpthread
 HEADERS=inc/GVector3.h
 DEFINES=
 CXX=clang++
