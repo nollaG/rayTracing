@@ -16,7 +16,7 @@
 #define SCENE_HEIGHT 60
 #define SCENE_WIDTH 80
 #define MAX_DISTANCE 1000000
-#define TRACE_DEPTH 5
+#define TRACE_DEPTH 3
 #define EPILSON 0.0001
 
 std::vector<GObject*> object_list;
@@ -49,7 +49,7 @@ void init() {
   test->setKs(GVector3(1.0f,1.0f,1.0f));
   test->setShininess(30.0f);
   test->setReflectivity(0.0f);
-  test->setTransparency(0.8f);
+  test->setTransparency(0.7f);
   object_list.push_back(test);
   test=new GSphere(GVector3(5.0f,5.0f,-5.0f),4.0f);
   test->setShininess(70.0f);
@@ -72,7 +72,7 @@ void init() {
   test->setKa(GVector3(0.2f,0.0f,0.4f));
   test->setKd(GVector3(0.3f,0.3f,0.3f));
   test->setKs(GVector3(1.0f,1.0f,1.0f));
-  test->setReflectivity(0.5f);
+  test->setReflectivity(0.6f);
   test->setTransparency(0.0f);
   object_list.push_back(test);
   test=new GFlat(GVector3(0.0f,1.0f,0.0f),GVector3(0.0f,-10.0f,0.0f));
@@ -127,9 +127,10 @@ GVector3 Tracer(const Ray& ray,int left) {
     LightSource* ls = light_list.at(k);
     bool flag=true;
     GVector3 testRayDirection=ls->getLightDirection(point)*(-1.0f);
+    GVector3 tracePoint=point;
     while (flag && shade >= EPILSON) {
       flag=false;
-      Ray testRay(point+testRayDirection*EPILSON,testRayDirection);
+      Ray testRay(tracePoint+testRayDirection*EPILSON,testRayDirection);
       int tmpIntersectionObject=-1;
       distance=MAX_DISTANCE;
       for (int k=0;k<object_list.size();++k) {
@@ -140,10 +141,12 @@ GVector3 Tracer(const Ray& ray,int left) {
       }
       if (tmpIntersectionObject!=-1) {
         shade*=object_list.at(tmpIntersectionObject)->getTransparency();
-        point=testRay.getPoint(distance);
+        tracePoint=testRay.getPoint(distance);
         flag=true;
       }
     }
+    if (shade<EPILSON)
+      shade=0.0f;
     tmpColor = ls->calColor(obj,point,CameraPosition);
     tmpColor*=shade;
     color += tmpColor;
