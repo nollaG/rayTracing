@@ -17,6 +17,7 @@ class GVector3 {
     double length() const;
     //false if the length==0
     bool normalize();
+    GVector3 cross(const GVector3&);
     GVector3 operator=(const GVector3&);
     GVector3 operator=(double);
     GVector3 operator+(const GVector3&) const;

@@ -23,6 +23,14 @@ bool GVector3::normalize() {
   z/=len;
   return true;
 }
+
+GVector3 GVector3::cross(const GVector3& rhs) {
+  GVector3 result;
+  result.x=y*rhs.z-z*rhs.y;
+  result.y=z*rhs.x-x*rhs.z;
+  result.z=x*rhs.y-y*rhs.x;
+  return result;
+}
 GVector3 GVector3::operator=(const GVector3& rhs) {
   x=rhs.x;
   y=rhs.y;
