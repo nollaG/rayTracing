@@ -131,12 +131,12 @@ void init() {
   pl->setKd(GVector3(0.0f,0.0f,1.0f));
   pl->setKs(GVector3(1.0f,1.0f,1.0f));
   light_list.push_back(pl);
-  //pl=new PointLight();
-  //pl->setPosition(GVector3(-5.0f,50.0f,-20.0f));
-  //pl->setKa(GVector3(0.5f,0.5f,0.5f));
-  //pl->setKd(GVector3(0.5f,0.5f,0.5f));
-  //pl->setKs(GVector3(1.0f,1.0f,1.0f));
-  //light_list.push_back(pl);
+  pl=new PointLight();
+  pl->setPosition(GVector3(-5.0f,50.0f,-20.0f));
+  pl->setKa(GVector3(0.5f,0.5f,0.5f));
+  pl->setKd(GVector3(0.5f,0.5f,0.5f));
+  pl->setKs(GVector3(1.0f,1.0f,1.0f));
+  light_list.push_back(pl);
   //DirectionalLight* dl=new DirectionalLight();
   //dl->setDirection(GVector3(-1.0f,-5.0f,-4.0f));
   //dl->setKa(GVector3(1.0f,1.0f,1.0f));
