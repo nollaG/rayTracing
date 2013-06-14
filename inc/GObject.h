@@ -13,19 +13,22 @@ class GObject {
     GVector3 m_Ks;//specular material
     double m_Shininess;
     double m_Reflectivity;
+    double m_Transparency;
   public:
     GObject();
-    GObject(const GVector3&,const GVector3&,const GVector3&,double,double);
+    GObject(const GVector3&,const GVector3&,const GVector3&,double,double,double);
     void setKa(const GVector3&);
     void setKd(const GVector3&);
     void setKs(const GVector3&);
     void setShininess(double);
     void setReflectivity(double);
+    void setTransparency(double);
     GVector3 getKa() const;
     GVector3 getKd() const;
     GVector3 getKs() const;
     double getShininess() const;
     double getReflectivity() const;
+    double getTransparency() const;
     virtual GVector3 getNormal(const GVector3&) const=0;
     virtual INTERSECTION_TYPE isIntersected(const Ray&,double&) const=0;
 

@@ -49,6 +49,7 @@ void init() {
   test->setKs(GVector3(1.0f,1.0f,1.0f));
   test->setShininess(30.0f);
   test->setReflectivity(0.0f);
+  test->setTransparency(0.8f);
   object_list.push_back(test);
   test=new GSphere(GVector3(5.0f,5.0f,-5.0f),4.0f);
   test->setShininess(70.0f);
@@ -56,6 +57,7 @@ void init() {
   test->setKd(GVector3(0.3f,0.3f,0.3f));
   test->setKs(GVector3(1.0f,1.0f,1.0f));
   test->setReflectivity(0.5f);
+  test->setTransparency(0.0f);
   object_list.push_back(test);
   test=new GSphere(GVector3(-20.0f,5.0f,0.0f),4.0f);
   test->setShininess(50.0f);
@@ -63,6 +65,7 @@ void init() {
   test->setKd(GVector3(0.3f,0.3f,0.3f));
   test->setKs(GVector3(1.0f,1.0f,1.0f));
   test->setReflectivity(0.5f);
+  test->setTransparency(0.0f);
   object_list.push_back(test);
   test=new GSphere(GVector3(15.0f,5.0f,2.0f),3.0f);
   test->setShininess(50.0f);
@@ -70,6 +73,7 @@ void init() {
   test->setKd(GVector3(0.3f,0.3f,0.3f));
   test->setKs(GVector3(1.0f,1.0f,1.0f));
   test->setReflectivity(0.5f);
+  test->setTransparency(0.0f);
   object_list.push_back(test);
   test=new GFlat(GVector3(0.0f,1.0f,0.0f),GVector3(0.0f,-10.0f,0.0f));
   test->setKa(GVector3(0.5f,0.5f,0.5f));
@@ -77,12 +81,13 @@ void init() {
   test->setKs(GVector3(0.3f,0.0f,0.0f));
   test->setShininess(0.0f);
   test->setReflectivity(0.5f);
+  test->setTransparency(0.0f);
   object_list.push_back(test);
   PointLight* pl=new PointLight();
   pl->setPosition(GVector3(5.0f,15.0f,20.0f));
-  pl->setKa(GVector3(0.8f,0.8f,0.8f));
-  pl->setKd(GVector3(0.0f,0.0f,0.5f));
-  pl->setKs(GVector3(0.5f,0.5f,0.5f));
+  pl->setKa(GVector3(1.0f,1.0f,1.0f));
+  pl->setKd(GVector3(0.0f,0.0f,1.0f));
+  pl->setKs(GVector3(1.0f,1.0f,1.0f));
   light_list.push_back(pl);
   //pl=new PointLight();
   //pl->setPosition(GVector3(-5.0f,50.0f,-20.0f));
@@ -120,17 +125,26 @@ GVector3 Tracer(const Ray& ray,int left) {
   color=GVector3(globalLight.x*objMaterial.x,globalLight.y*objMaterial.y,globalLight.z*objMaterial.z);
   for (int k=0;k<light_list.size();++k) {
     LightSource* ls = light_list.at(k);
+    bool flag=true;
     GVector3 testRayDirection=ls->getLightDirection(point)*(-1.0f);
-    Ray testRay(point+testRayDirection*EPILSON,testRayDirection);
-    for (int k=0;k<object_list.size();++k) {
-      GObject* obj=object_list.at(k);
-      if ((tmp=obj->isIntersected(testRay,distance))!=MISS) {
-        shade=0.0f;
-        break;
+    while (flag && shade >= EPILSON) {
+      flag=false;
+      Ray testRay(point+testRayDirection*EPILSON,testRayDirection);
+      int tmpIntersectionObject=-1;
+      distance=MAX_DISTANCE;
+      for (int k=0;k<object_list.size();++k) {
+        GObject* obj=object_list.at(k);
+        if ((tmp=obj->isIntersected(testRay,distance))!=MISS) {
+          tmpIntersectionObject=k;
+        }
+      }
+      if (tmpIntersectionObject!=-1) {
+        shade*=object_list.at(tmpIntersectionObject)->getTransparency();
+        point=testRay.getPoint(distance);
+        flag=true;
       }
     }
     tmpColor = ls->calColor(obj,point,CameraPosition);
-    tmpColor.normalize();
     tmpColor*=shade;
     color += tmpColor;
     //color.normalize();
@@ -139,13 +153,18 @@ GVector3 Tracer(const Ray& ray,int left) {
     return color;
   GVector3 normal=obj->getNormal(point);
   normal.normalize();
-  GVector3 rd=ray.getDirection()*(-1.0f);
-  GVector3 reflectRayDirection=normal*(rd*normal)*2.0f-rd;
+  GVector3 rd=ray.getDirection();
+  GVector3 transparentRayDirection=rd;
+  Ray transparentRay(point+transparentRayDirection*EPILSON,transparentRayDirection);
+  GVector3 transparentColor=Tracer(transparentRay,left-1);
+  //reflect
+  GVector3 reflectRayDirection=rd-normal*(rd*normal)*2.0f;
   Ray reflectRay(point+reflectRayDirection*EPILSON,reflectRayDirection);
   GVector3 reflectColor=Tracer(reflectRay,left-1);
-  //color.normalize();
-  GVector3 material=obj->getKa();
-  color=color*(1-obj->getReflectivity())+GVector3(material.x*reflectColor.x,material.y*reflectColor.y,material.z*reflectColor.z)*obj->getReflectivity();
+
+  //color=color*(1-obj->getReflectivity())+GVector3(material.x*reflectColor.x,material.y*reflectColor.y,material.z*reflectColor.z)*obj->getReflectivity();
+  color=color*(1-obj->getReflectivity()-obj->getTransparency())+GVector3(objMaterial.x*reflectColor.x,objMaterial.y*reflectColor.y,objMaterial.z*reflectColor.z)*obj->getReflectivity()+GVector3(objMaterial.x*transparentColor.x,objMaterial.y*transparentColor.y,objMaterial.z*transparentColor.z)*obj->getTransparency();
+
   return color;
 }
 
