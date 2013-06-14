@@ -79,11 +79,14 @@ bool GComplexModel::intersectTriangle(const Ray& ray,const GVector3& v0,const GV
     det = -det;
   }
 
-  if (det < 0.0001f)
+  if (det < 0.0001f) {
     return false;
+
+  }
   double u = T*P;
-  if (u<0.0f || u > det)
+  if (u<0.0f || u > det) {
     return false;
+  }
   GVector3 Q = T.cross(E1);
   double v=ray.getDirection()*Q;
   if (v < 0.0f || u+v > det) {
@@ -91,6 +94,8 @@ bool GComplexModel::intersectTriangle(const Ray& ray,const GVector3& v0,const GV
   }
   double t=E2*Q;
   double fInvDet = 1.0f / det;
+  if (t<0)
+    return false;
   if (t*fInvDet < dist) {
     dist = t*fInvDet;
     return true;
