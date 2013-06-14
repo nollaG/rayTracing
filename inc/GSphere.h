@@ -15,7 +15,7 @@ class GSphere:public GObject {
     void setRadius(double);
     GVector3 getCenter() const;
     double getRadius() const;
-    INTERSECTION_TYPE isIntersected(const Ray&,double&) const;
+    INTERSECTION_TYPE isIntersected(const Ray&,double&);
     GVector3 getNormal(const GVector3&) const;
 };
 

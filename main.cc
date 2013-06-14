@@ -120,6 +120,8 @@ GVector3 Tracer(const Ray& ray,int left) {
   //now there is a intersection point
   GObject* obj=object_list.at(IntersectionObject);
   GVector3 point=ray.getPoint(distance);
+  GVector3 normal=obj->getNormal(point);
+  normal.normalize();
   GVector3 tmpColor;
   GVector3 objMaterial=obj->getKa();
   color=GVector3(globalLight.x*objMaterial.x,globalLight.y*objMaterial.y,globalLight.z*objMaterial.z);
@@ -150,12 +152,9 @@ GVector3 Tracer(const Ray& ray,int left) {
     tmpColor = ls->calColor(obj,point,CameraPosition);
     tmpColor*=shade;
     color += tmpColor;
-    //color.normalize();
   }
   if (left==0)
     return color;
-  GVector3 normal=obj->getNormal(point);
-  normal.normalize();
   GVector3 rd=ray.getDirection();
   GVector3 transparentRayDirection=rd;
   Ray transparentRay(point+transparentRayDirection*EPILSON,transparentRayDirection);

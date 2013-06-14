@@ -30,7 +30,7 @@ class GObject {
     double getReflectivity() const;
     double getTransparency() const;
     virtual GVector3 getNormal(const GVector3&) const=0;
-    virtual INTERSECTION_TYPE isIntersected(const Ray&,double&) const=0;
+    virtual INTERSECTION_TYPE isIntersected(const Ray&,double&) =0;
 
 };
 

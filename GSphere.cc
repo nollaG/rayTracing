@@ -18,7 +18,7 @@ double GSphere::getRadius() const {
   return m_Radius;
 }
 
-INTERSECTION_TYPE GSphere::isIntersected(const Ray& ray,double& dis) const {
+INTERSECTION_TYPE GSphere::isIntersected(const Ray& ray,double& dis) {
   double A = ray.getDirection()*ray.getDirection(); //assuming 1.0f
   double B = ray.getDirection()*(ray.getOrigin()-this->m_Center)*2.0f;
   double C = (ray.getOrigin()-this->m_Center)*(ray.getOrigin()-this->m_Center)-this->m_Radius*this->m_Radius;

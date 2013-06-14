@@ -16,7 +16,7 @@ class GFlat:public GObject{
     GVector3 getNormal() const;
     GVector3 getPoint() const;
     GVector3 getNormal(const GVector3&) const;
-    INTERSECTION_TYPE isIntersected(const Ray&,double&) const;
+    INTERSECTION_TYPE isIntersected(const Ray&,double&);
 
 };
 

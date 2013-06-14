@@ -21,7 +21,7 @@ GVector3 GFlat::getPoint() const {
 GVector3 GFlat::getNormal(const GVector3& v) const {
   return m_Normal;
 }
-INTERSECTION_TYPE GFlat::isIntersected(const Ray& ray,double& point) const {
+INTERSECTION_TYPE GFlat::isIntersected(const Ray& ray,double& point) {
   double tmp1=m_Point*m_Normal - m_Normal*ray.getOrigin();
   double tmp2=m_Normal*ray.getDirection();
   double t=tmp1/tmp2;

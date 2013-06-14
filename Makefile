@@ -1,5 +1,5 @@
 OBJS=GVector3.o main.o Ray.o GObject.o GSphere.o GFlat.o LightSource.o\
-	 DirectionalLight.o PointLight.o
+	 DirectionalLight.o PointLight.o GComplexModel.o
 LDFLAGS=-lm -lGLU -lglut
 HEADERS=inc/GVector3.h
 DEFINES=
@@ -27,6 +27,8 @@ GSphere.o:inc/GSphere.h GSphere.cc
 	$(CXX) $(CFLAGS) $(DEFINES) -o GSphere.o -c GSphere.cc
 GFlat.o:inc/GFlat.h GFlat.cc
 	$(CXX) $(CFLAGS) $(DEFINES) -o GFlat.o -c GFlat.cc
+GComplexModel.o:inc/GComplexModel.h GComplexModel.cc
+	$(CXX) $(CFLAGS) $(DEFINES) -o GComplexModel.o -c GComplexModel.cc
 .PHONY:clean
 clean:
 	rm rayTracing $(OBJS)
