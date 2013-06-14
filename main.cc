@@ -16,6 +16,7 @@
 #define SCENE_HEIGHT 80
 #define SCENE_WIDTH 60
 #define MAX_DISTANCE 1000000
+#define EPILSON 0.0001
 
 std::vector<GObject*> object_list;
 std::vector<LightSource*> light_list;
@@ -34,14 +35,14 @@ void init() {
   
   glDepthFunc(GL_LEQUAL);
   GObject *test;
-  test=new GSphere(GVector3(-5.0f,-5.0f,5.0f),5.0f);
+  test=new GSphere(GVector3(-5.0f,-2.0f,5.0f),5.0f);
   test->setKa(GVector3(0.2f,0.0f,0.0f));
   test->setKd(GVector3(0.3f,0.3f,0.3f));
   test->setKs(GVector3(1.0f,1.0f,1.0f));
   test->setShininess(30.0f);
   test->setReflectivity(0.5f);
   object_list.push_back(test);
-  test=new GSphere(GVector3(5.0f,5.0f,-3.0f),3.0f);
+  test=new GSphere(GVector3(5.0f,5.0f,-5.0f),3.0f);
   test->setShininess(80.0f);
   test->setKa(GVector3(0.0f,0.0f,0.3f));
   test->setKd(GVector3(0.3f,0.3f,0.3f));
@@ -54,6 +55,13 @@ void init() {
   test->setKd(GVector3(0.3f,0.3f,0.3f));
   test->setKs(GVector3(1.0f,1.0f,1.0f));
   test->setReflectivity(0.8f);
+  object_list.push_back(test);
+  test=new GSphere(GVector3(12.0f,8.0f,0.0f),3.0f);
+  test->setShininess(50.0f);
+  test->setKa(GVector3(0.2f,0.0f,0.4f));
+  test->setKd(GVector3(0.3f,0.3f,0.3f));
+  test->setKs(GVector3(1.0f,1.0f,1.0f));
+  test->setReflectivity(0.2f);
   object_list.push_back(test);
   test=new GFlat(GVector3(0.0f,1.0f,0.0f),GVector3(0.0f,-10.0f,0.0f));
   test->setKa(GVector3(0.0f,0.5f,0.5f));
@@ -69,10 +77,10 @@ void init() {
   pl->setKs(GVector3(1.0f,1.0f,1.0f));
   light_list.push_back(pl);
   pl=new PointLight();
-  pl->setPosition(GVector3(0.0f,50.0f,-20.0f));
+  pl->setPosition(GVector3(-5.0f,50.0f,-20.0f));
   pl->setKa(GVector3(1.0f,1.0f,1.0f));
   pl->setKd(GVector3(1.0f,0.0f,0.0f));
-  pl->setKs(GVector3(0.0f,1.0f,0.0f));
+  pl->setKs(GVector3(1.0f,1.0f,1.0f));
   light_list.push_back(pl);
   //DirectionalLight* dl=new DirectionalLight();
   //dl->setDirection(GVector3(-1.0f,-5.0f,-4.0f));
@@ -82,7 +90,7 @@ void init() {
   //light_list.push_back(dl);
 }
 
-GVector3 Tracer(const Ray& ray,int left,int last) {
+GVector3 Tracer(const Ray& ray,int left) {
   GVector3 color(0.0f,0.0f,0.0f);//background
   double distance = MAX_DISTANCE;
   double shade=1.0f;
@@ -90,8 +98,6 @@ GVector3 Tracer(const Ray& ray,int left,int last) {
   INTERSECTION_TYPE tmp;
   for (int k=0;k<object_list.size();++k) {
     GObject* obj=object_list.at(k);
-    if (last==k)
-      continue;
     if ((tmp=obj->isIntersected(ray,distance))!=MISS) {
       IntersectionObject=k;
     }
@@ -104,7 +110,8 @@ GVector3 Tracer(const Ray& ray,int left,int last) {
   GVector3 tmpColor;
   for (int k=0;k<light_list.size();++k) {
     LightSource* ls = light_list.at(k);
-    Ray testRay(point,ls->getLightDirection(point)*(-1.0f));
+    GVector3 testRayDirection=ls->getLightDirection(point)*(-1.0f);
+    Ray testRay(point+testRayDirection*EPILSON,testRayDirection);
     for (int k=0;k<object_list.size();++k) {
       GObject* obj=object_list.at(k);
       if ((tmp=obj->isIntersected(testRay,distance))!=MISS) {
@@ -125,15 +132,17 @@ GVector3 Tracer(const Ray& ray,int left,int last) {
   normal.normalize();
   GVector3 rd=ray.getDirection()*(-1.0f);
   GVector3 reflectRayDirection=normal*(rd*normal)*2.0f-rd;
-  Ray reflectRay(point,reflectRayDirection);
-  GVector3 reflectColor=Tracer(reflectRay,left-1,IntersectionObject);
+  Ray reflectRay(point+reflectRayDirection*EPILSON,reflectRayDirection);
+  GVector3 reflectColor=Tracer(reflectRay,left-1);
   color.normalize();
-  //color+=GVector3(color.x*reflectColor.x,color.y*reflectColor.y,color.z*reflectColor.z);
+  //if (reflectColor.length() > EPILSON)
+  //color+=GVector3(color.x*reflectColor.x,color.y*reflectColor.y,color.z*reflectColor.z)*obj->getReflectivity();
   //color+=reflectColor;
   if (reflectColor.length()>0.0001f) {
-    color=color*(1-obj->getReflectivity())+reflectColor*obj->getReflectivity();
+    color+=reflectColor*obj->getReflectivity();
     color.normalize();
   }
+  color.normalize();
   return color;
 }
 
@@ -150,7 +159,7 @@ void display() {
       GVector3 pixel(x,y,0);
       GVector3 direction=pixel-CameraPosition;
       Ray ray(CameraPosition,direction);
-      GVector3 resultColor=Tracer(ray,10,-1);
+      GVector3 resultColor=Tracer(ray,3);
       glColor3f(resultColor.x,resultColor.y,resultColor.z);
       glVertex3f(i,j,0);
     }
