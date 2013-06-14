@@ -55,7 +55,7 @@ void init() {
   test->setKa(GVector3(0.0f,0.0f,0.3f));
   test->setKd(GVector3(0.3f,0.3f,0.3f));
   test->setKs(GVector3(1.0f,1.0f,1.0f));
-  test->setReflectivity(0.2f);
+  test->setReflectivity(0.5f);
   object_list.push_back(test);
   //test=new gsphere(gvector3(-10.0f,10.0f,0.0f),4.0f);
   //test->setshininess(50.0f);
@@ -69,14 +69,14 @@ void init() {
   test->setKa(GVector3(0.2f,0.0f,0.4f));
   test->setKd(GVector3(0.3f,0.3f,0.3f));
   test->setKs(GVector3(1.0f,1.0f,1.0f));
-  test->setReflectivity(0.2f);
+  test->setReflectivity(0.5f);
   object_list.push_back(test);
   test=new GFlat(GVector3(0.0f,1.0f,0.0f),GVector3(0.0f,-10.0f,0.0f));
-  test->setKa(GVector3(0.0f,0.5f,0.5f));
+  test->setKa(GVector3(0.5f,0.5f,0.5f));
   test->setKd(GVector3(0.0f,0.2f,0.4f));
   test->setKs(GVector3(0.3f,0.0f,0.0f));
   test->setShininess(0.0f);
-  test->setReflectivity(0.2f);
+  test->setReflectivity(0.5f);
   object_list.push_back(test);
   PointLight* pl=new PointLight();
   pl->setPosition(GVector3(5.0f,15.0f,20.0f));
@@ -144,13 +144,14 @@ GVector3 Tracer(const Ray& ray,int left) {
   Ray reflectRay(point+reflectRayDirection*EPILSON,reflectRayDirection);
   GVector3 reflectColor=Tracer(reflectRay,left-1);
   //color.normalize();
-  //if (reflectColor.length() > EPILSON)
-  //color+=GVector3(color.x*reflectColor.x,color.y*reflectColor.y,color.z*reflectColor.z)*obj->getReflectivity();
-  //color+=reflectColor;
-  if (reflectColor.length()>0.0001f) {
-    color=color*(1-obj->getReflectivity())+reflectColor*obj->getReflectivity();
-    //color.normalize();
+  GVector3 material=obj->getKa();
+  if (reflectColor.length() > EPILSON) {
+    color=color*(1-obj->getReflectivity())+GVector3(material.x*reflectColor.x,material.y*reflectColor.y,material.z*reflectColor.z)*obj->getReflectivity();
   }
+  //if (reflectColor.length()>EPILSON) {
+    //color=color*(1-obj->getReflectivity())+reflectColor*obj->getReflectivity();
+    ////color.normalize();
+  //}
   //color.normalize();
   return color;
 }
