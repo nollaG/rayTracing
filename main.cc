@@ -62,22 +62,23 @@ void init() {
   GObject *test;
 
 #ifdef MULTITHREAD
-  std::cout << "Multi Thread [ Enabled ]" << std::endl;
+  std::cout << "MultiThread [ Enabled ]" << std::endl;
 #else
-  std::cout << "Multi Thread [ Disabled ]" << std::endl;
+  std::cout << "MultiThread [ Disabled ]" << std::endl;
 #endif
 
 #ifdef MULTIRAY
-  std::cout << "Multi Ray [ Enabled ]" << std::endl;
+  std::cout << "MultiRay [ Enabled ]" << std::endl;
 #else
-  std::cout << "Multi Ray [ Disabled ]" << std::endl;
+  std::cout << "MultiRay [ Disabled ]" << std::endl;
 #endif
 #ifdef BUNNY
+  std::cout << "Bunny [ Enabled ]" << std::endl;
   GComplexModel* gcm=new GComplexModel();
   FILE* datain=fopen("data/bunny.data","r");
-  fprintf(stdout,"Reading data from data/bunny.data\n");
+  fprintf(stdout,"[Bunny] Reading data from data/bunny.data\n");
   if (!datain) {
-    perror("Open Data File Error");
+    perror("[Bunny] Open Data File Error");
     exit(1);
   }
   double xx,yy,zz,t1,t2;
@@ -96,9 +97,9 @@ void init() {
     gcm->indices.push_back(c);
   }
   fclose(datain);
-  fprintf(stdout,"Reading Data Done.\n");
+  fprintf(stdout,"[Bunny] Reading Data Done.\n");
   if (gcm->calSurround())
-    fprintf(stdout,"surround Calculated.\n");
+    fprintf(stdout,"[Bunny] Surround Calculated.\n");
   gcm->setKa(GVector3(0.5f,0.0f,0.5f));
   gcm->setKd(GVector3(0.3f,0.3f,0.3f));
   gcm->setKs(GVector3(1.0f,1.0f,1.0f));
@@ -107,6 +108,7 @@ void init() {
   gcm->setTransparency(0.0f);
   object_list.push_back(gcm);
 #else
+  std::cout << "Bunny [ Disabled ]" << std::endl;
   test=new GSphere(GVector3(3.0f,5.0f,5.0f),4.0f);
   test->setKa(GVector3(0.5f,0.0f,0.5f));
   test->setKd(GVector3(0.3f,0.3f,0.3f));
@@ -154,18 +156,17 @@ void init() {
   pl->setKd(GVector3(0.0f,0.0f,1.0f));
   pl->setKs(GVector3(1.0f,1.0f,1.0f));
   light_list.push_back(pl);
+#ifndef ONELIGHT
   pl=new PointLight();
   pl->setPosition(GVector3(-5.0f,50.0f,-20.0f));
   pl->setKa(GVector3(0.5f,0.5f,0.5f));
   pl->setKd(GVector3(0.5f,0.5f,0.5f));
   pl->setKs(GVector3(1.0f,1.0f,1.0f));
   light_list.push_back(pl);
-  //DirectionalLight* dl=new DirectionalLight();
-  //dl->setDirection(GVector3(-1.0f,-5.0f,-4.0f));
-  //dl->setKa(GVector3(1.0f,1.0f,1.0f));
-  //dl->setKd(GVector3(0.0f,0.0f,1.0f));
-  //dl->setKs(GVector3(1.0f,1.0f,1.0f));
-  //light_list.push_back(dl);
+  std::cout << "OneLight [ Disabled ]" << std::endl;
+#else
+  std::cout << "OneLight [ Enabled ]" << std::endl;
+#endif
 }
 
 GVector3 samplePixel(int i,int j) {
