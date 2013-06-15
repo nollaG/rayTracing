@@ -3,7 +3,7 @@ OBJS=GVector3.o main.o Ray.o GObject.o GSphere.o GFlat.o LightSource.o\
 LDFLAGS=-lm -lGLU -lglut -lpthread
 HEADERS=inc/GVector3.h
 DEFINES=
-CXX=clang++
+CXX=g++
 CFLAGS=-ggdb -O2 -Wall
 
 all:rayTracing
