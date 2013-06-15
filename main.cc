@@ -295,7 +295,7 @@ GVector3 Tracer(const Ray& ray,int left) {
     color += tmpColor;
   }
   if (left==0)
-    return color;
+    return color*(1-obj->getReflectivity()-obj->getTransparency());
   GVector3 normal=obj->getNormal(point);
   normal.normalize();
   GVector3 rd=ray.getDirection();
