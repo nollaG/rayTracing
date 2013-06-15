@@ -1,0 +1,16 @@
+This is a program to implement raytracing algorithm.
+Just my Computer Graphyics Course Project
+
+Usage:
+Just type make and enjoy it.
+
+You can use defines to config the program.
+
+There are several defines:
+MULTITHREAD : use pthread to make this multithread
+BUNNY : use a bunny to replace one ball
+MULTIRAY : to trace multi ray in one pixel
+ONELIGHT : turn off one light(there are two lights by default)
+
+example:
+make DEFINES="-DMULTITHREAD -DBUNNY -DMULTIRAY"
