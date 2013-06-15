@@ -1,5 +1,6 @@
 #ifndef GCOMPLEXMODEL_H
 #define GCOMPLEXMODEL_H
+#include <map>
 #include <vector>
 #include "GSphere.h"
 #include "GObject.h"
@@ -8,11 +9,11 @@ class GComplexModel:public GObject {
   private:
     GSphere surround;
   private:
-    bool intersectTriangle(const Ray& ray,const GVector3& v0,const GVector3& v1,const GVector3&v2,double& dist);
+    bool intersectTriangle(const Ray& ray,const GVector3& v0,const GVector3& v1,const GVector3&v2,double& dist,GVector3& normal);
     GVector3 calNormal(const GVector3& v0,const GVector3& v1,const GVector3&v2) const;
   public:
+    std::map<GVector3,GVector3> normals_map;
     std::vector<GVector3> vertices;
-    std::vector<GVector3> normals;
     std::vector<int> indices; //every 3 a face
 
   public:

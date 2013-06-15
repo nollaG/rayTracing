@@ -60,6 +60,18 @@ void init() {
   
   glDepthFunc(GL_LEQUAL);
   GObject *test;
+
+#ifdef MULTITHREAD
+  std::cout << "Multi Thread [ Enabled ]" << std::endl;
+#else
+  std::cout << "Multi Thread [ Disabled ]" << std::endl;
+#endif
+
+#ifdef MULTIRAY
+  std::cout << "Multi Ray [ Enabled ]" << std::endl;
+#else
+  std::cout << "Multi Ray [ Disabled ]" << std::endl;
+#endif
 #ifdef BUNNY
   GComplexModel* gcm=new GComplexModel();
   FILE* datain=fopen("data/bunny.data","r");
@@ -87,8 +99,6 @@ void init() {
   fprintf(stdout,"Reading Data Done.\n");
   if (gcm->calSurround())
     fprintf(stdout,"surround Calculated.\n");
-  gcm->calNormalVectors();
-  fprintf(stdout,"Normal Vectors Calculated.\n");
   gcm->setKa(GVector3(0.5f,0.0f,0.5f));
   gcm->setKd(GVector3(0.3f,0.3f,0.3f));
   gcm->setKs(GVector3(1.0f,1.0f,1.0f));
@@ -208,18 +218,18 @@ void* pthread_helper(void* arg) {
   while (true) {
     flag=false;
     pthread_mutex_lock(&multi_thread_mutex);
-    multithread_pixel+=MULTI_THREAD_TRUNK_SIZE;
     tmp=multithread_pixel;
+    multithread_pixel+=MULTI_THREAD_TRUNK_SIZE;
     currentInt=(tmp+1)*20/(IMAGE_HEIGHT*IMAGE_WIDTH);
     if (currentInt>percent) {
       percent=currentInt;
       flag=true;
     }
     pthread_mutex_unlock(&multi_thread_mutex);
-    if (tmp>=IMAGE_HEIGHT*IMAGE_WIDTH)
-      pthread_exit(0);
     if (flag)
       print_progress(percent);
+    if (tmp>=IMAGE_HEIGHT*IMAGE_WIDTH)
+      pthread_exit(0);
     for (int k=0;k<MULTI_THREAD_TRUNK_SIZE;++k) {
       int i=(tmp+k) / IMAGE_HEIGHT;
       int j=(tmp+k) % IMAGE_HEIGHT;
@@ -319,8 +329,6 @@ void display() {
   for (int i=0;i<MULTI_THREAD_NUM;++i) {
     pthread_join(tid[i],NULL);
   }
-  if (MULTI_THREAD_TRUNK_SIZE!=1)
-    print_progress(20);
   for (int i=0;i<IMAGE_WIDTH;++i) {
     for (int j=0;j<IMAGE_HEIGHT;++j) {
       glColor3f(pixelColor[i][j].x,pixelColor[i][j].y,pixelColor[i][j].z);

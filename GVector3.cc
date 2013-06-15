@@ -100,6 +100,21 @@ GVector3 GVector3::operator/=(const double f) {
   return *this;
 }
 
+bool GVector3::operator<(const GVector3& rhs) const {
+  return length() < rhs.length();
+}
+
+bool GVector3::operator==(const GVector3& rhs) const {
+  if (fabs(rhs.x-x)>EPILSON_FOR_COMPARE)
+    return false;
+
+  if (fabs(rhs.y-y)>EPILSON_FOR_COMPARE)
+    return false;
+  if (fabs(rhs.z-z)>EPILSON_FOR_COMPARE)
+    return false;
+  return true;
+}
+
 std::ostream& operator<<(std::ostream& os,const GVector3& g) {
   os << g.x << " " << g.y << " " << " " <<g.z;
   return os;
@@ -108,3 +123,4 @@ std::istream& operator>>(std::istream& is,GVector3& g) {
   is >> g.x >> g.y >> g.z;
   return is;
 }
+

@@ -4,7 +4,7 @@ LDFLAGS=-lm -lGLU -lglut -lpthread
 HEADERS=inc/GVector3.h
 DEFINES=
 CXX=clang++
-CFLAGS=-ggdb -O2
+CFLAGS=-ggdb -O2 -Wall
 
 all:rayTracing
 rayTracing:$(OBJS)

@@ -1,3 +1,5 @@
+#define EPILSON_FOR_COMPARE 0.000001
+
 #ifndef GVECTOR3_H
 
 #define GVECTOR3_H
@@ -18,6 +20,7 @@ class GVector3 {
     //false if the length==0
     bool normalize();
     GVector3 cross(const GVector3&);
+    bool operator<(const GVector3&) const;
     GVector3 operator=(const GVector3&);
     GVector3 operator=(double);
     GVector3 operator+(const GVector3&) const;
@@ -29,6 +32,7 @@ class GVector3 {
     double operator*(const GVector3&) const;
     GVector3 operator/(const double) const;
     GVector3 operator/=(const double);
+    bool operator==(const GVector3&) const;
 };
 std::ostream& operator<<(std::ostream&,const GVector3&);
 std::istream& operator>>(std::istream&,GVector3&);

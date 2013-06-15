@@ -1,4 +1,8 @@
+#include <map>
+#include <cstdlib>
+#include <iostream>
 #include "inc/GComplexModel.h"
+
 
 bool GComplexModel::calSurround() {
   GVector3 surroundCenter;
@@ -30,33 +34,14 @@ bool GComplexModel::calSurround() {
 }
 
 GVector3 GComplexModel::getNormal(const GVector3& p) const {
-  double min=100000.0f;
-  int minv=-1;
-  double tmp;
-  for (int i=0;i<vertices.size();++i) {
-    tmp=(vertices.at(i)-p).length();
-    if (tmp<min) {
-      min=tmp;
-      minv=i;
-    }
+  std::map<GVector3,GVector3>::const_iterator iter;
+  iter=normals_map.find(p);
+  if (iter!=normals_map.end()) {
+    return iter->second;
+  }  else {
+    std::cout << "Panic!We can not Find!\n" << std::endl;;
+    exit(1);
   }
-  if (minv==-1)
-    return GVector3(0.0f,0.0f,0.0f);
-  return normals.at(minv);
-}
-
-void GComplexModel::calNormalVectors() {
-  GVector3 tmp;
-  for (int i=0;i<vertices.size();++i)
-    normals.push_back(GVector3(0.0f,0.0f,0.0f));
-  for (int i=0;i<indices.size();i+=3) {
-    tmp=calNormal(vertices.at(indices.at(i)), vertices.at(indices.at(i+1)), vertices.at(indices.at(i+2)));
-    normals.at(indices.at(i))+=tmp;
-    normals.at(indices.at(i+1))+=tmp;
-    normals.at(indices.at(i+2))+=tmp;
-  }
-  for (int i=0;i<normals.size();++i)
-    normals.at(i).normalize();
 }
 
 GVector3 GComplexModel::calNormal(const GVector3& v0,const GVector3& v1,const GVector3& v2) const {
@@ -65,7 +50,7 @@ GVector3 GComplexModel::calNormal(const GVector3& v0,const GVector3& v1,const GV
   return t1.cross(t2);
 }
 
-bool GComplexModel::intersectTriangle(const Ray& ray,const GVector3& v0,const GVector3& v1,const GVector3& v2,double &dist) {
+bool GComplexModel::intersectTriangle(const Ray& ray,const GVector3& v0,const GVector3& v1,const GVector3& v2,double &dist,GVector3& normal) {
   GVector3 E1=v1-v0;
   GVector3 E2=v2-v0;
   GVector3 P = ray.getDirection().cross(E2);
@@ -98,6 +83,7 @@ bool GComplexModel::intersectTriangle(const Ray& ray,const GVector3& v0,const GV
     return false;
   if (t*fInvDet < dist) {
     dist = t*fInvDet;
+    normal=calNormal(v0,v1,v2);
     return true;
   } else {
     return false;
@@ -109,16 +95,24 @@ INTERSECTION_TYPE GComplexModel::isIntersected(const Ray& ray,double &dist) {
   if (surround.isIntersected(ray,tmpdist)==MISS)
     return MISS;
   bool result=false;
+  GVector3 tmpnormal;
   for (int i=0;i<indices.size();i+=3) {
     if (intersectTriangle(ray,vertices.at(indices.at(i)),
           vertices.at(indices.at(i+1)),
             vertices.at(indices.at(i+2)),
-            dist)) {
+            dist,tmpnormal)) {
       result=true;
     }
   }
-  if (result)
-    return INTERSECTED_OUT;
+  if (result) {
+    GVector3 p=ray.getPoint(dist);
+    std::map<GVector3,GVector3>::const_iterator iter;
+    iter=normals_map.find(p);
+    if (iter==normals_map.end()) {
+      normals_map.insert(std::pair<GVector3,GVector3>(p,tmpnormal));
+    }
+      return INTERSECTED_OUT;
+  }
   else
     return MISS;
 }
