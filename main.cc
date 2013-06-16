@@ -27,10 +27,11 @@
 #define EPILSON 0.0001
 #define BUNNY_VERTICES 453
 #define BUNNY_FACES 948
+#define SCREEN_Z 30
 
 std::vector<GObject*> object_list;
 std::vector<LightSource*> light_list;
-GVector3 CameraPosition(0.0f,0.0f,60.0f);
+GVector3 CameraPosition(0.0f,0.0f,90.0f);
 GVector3 globalLight(1.0f,1.0f,1.0f);
 
 double HALF_PIXEL_WIDTH = double(SCENE_WIDTH) / double(IMAGE_WIDTH*2.0f);
@@ -184,24 +185,24 @@ GVector3 samplePixel(int i,int j) {
 #endif //multiray
   GVector3 pixel,direction,resultColor;
   Ray ray;
-  pixel=GVector3(left_bottom_x,left_bottom_y,0);
+  pixel=GVector3(left_bottom_x,left_bottom_y,SCREEN_Z);
   direction=pixel-CameraPosition;
   ray=Ray(CameraPosition,direction);
   resultColor+=Tracer(ray,TRACE_DEPTH);
 #ifdef MULTIRAY
-  pixel=GVector3(left_top_x,left_top_y,0);
+  pixel=GVector3(left_top_x,left_top_y,SCREEN_Z);
   direction=pixel-CameraPosition;
   ray=Ray(CameraPosition,direction);
   resultColor+=Tracer(ray,TRACE_DEPTH);
-  pixel=GVector3(right_bottom_x,right_bottom_y,0);
+  pixel=GVector3(right_bottom_x,right_bottom_y,SCREEN_Z);
   direction=pixel-CameraPosition;
   ray=Ray(CameraPosition,direction);
   resultColor+=Tracer(ray,TRACE_DEPTH);
-  pixel=GVector3(right_top_x,right_top_y,0);
+  pixel=GVector3(right_top_x,right_top_y,SCREEN_Z);
   direction=pixel-CameraPosition;
   ray=Ray(CameraPosition,direction);
   resultColor+=Tracer(ray,TRACE_DEPTH);
-  pixel=GVector3(center_x,center_y,0);
+  pixel=GVector3(center_x,center_y,SCREEN_Z);
   direction=pixel-CameraPosition;
   ray=Ray(CameraPosition,direction);
   resultColor+=Tracer(ray,TRACE_DEPTH);
