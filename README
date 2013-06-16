@@ -14,3 +14,5 @@ ONELIGHT : turn off one light(there are two lights by default)
 
 example:
 make DEFINES="-DMULTITHREAD -DBUNNY -DMULTIRAY"
+
+There are some screenshots in the directory screenshots.
